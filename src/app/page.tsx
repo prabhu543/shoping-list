@@ -1,8 +1,6 @@
 'use client';
 
 import { RiDeleteBin4Line } from 'react-icons/ri';
-import ConnectDB from '@/lib/db';
-import { Todo } from '@/lib/model/todos';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
@@ -56,11 +54,20 @@ const ShoppingList = () => {
 		<button
 			id='clear'
 			className='btn-clear w-full mt-5 py-2 px-4 text-gray-800 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-100 focus:outline-none text-white hover:text-gray-800'
-			// onClick={handleClearAll}
-		>
+			onClick={handleClearAll}>
 			Clear All
 		</button>
 	);
+	const handleClearAll = async () => {
+		try {
+			await fetch('/api/todo/clear', {
+				method: 'DELETE',
+			});
+		} catch (error) {
+			console.error('Error clearing all todos:', error);
+		}
+    fetchTodos();
+	};
 
 	return (
 		<div className='container max-w-md mx-auto mt-8 p-4'>
@@ -102,7 +109,7 @@ const ShoppingList = () => {
 			<ul
 				id='item-list'
 				className='items mt-5 flex flex-wrap'>
-				{items.map((item) => (
+				{items && items.length >0 ?  items.map((item) => (
 					<li
 						key={item._id}
 						className='flex justify-between w-full sm:w-[48%] border border-gray-300 rounded-md p-3 mb-5 mr-2 last:mr-0 font-semibold'>
@@ -110,11 +117,14 @@ const ShoppingList = () => {
 						<button
 							className='remove-item btn-link text-red-500 focus:outline-none'
 							onClick={() => handleRemoveItem(item._id)}>
-							{/* You can add an icon here if you have one */}
 							<RiDeleteBin4Line />
 						</button>
 					</li>
-				))}
+
+				))
+      :
+      <li className='flex justify-center w-full sm:w-[48%]  p-3 mb-5 mr-2 last:mr-0 font-semibold text-red-200'>No any items</li>
+      }
 			</ul>
 
 			{items && items.length > 0 && deleteBtn()}
